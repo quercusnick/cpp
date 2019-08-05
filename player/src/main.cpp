@@ -14,7 +14,7 @@ public:
 class VideoDecoder : public Decoder {
 public:
 	void decode(const std::string& FileName){
-		std::string bin = "echo mplayer " + FileName;
+		std::string bin = "mplayer " + FileName;
 		const char *command = bin.c_str();
 		system(command);
 	}
@@ -24,7 +24,7 @@ public:
 class AudioDecoder : public Decoder {
 public:
 	void decode(const std::string& FileName){
-		std::string bin = "echo ffplay " + FileName;
+		std::string bin = "ffplay " + FileName;
 		const char *command = bin.c_str();
 		system(command);
 	}
@@ -48,6 +48,10 @@ class Parser {
 				d = new VideoDecoder();
 			}
 
+			if ( MediaType == "UNKNOWN")
+			{
+				d = nullptr;
+			}
 			return d;
 
 		};
@@ -64,8 +68,11 @@ class Player {
 		void play(const std::string& FileName){
 			Parser p;
 			Decoder* d = p.parse(FileName);
-			d->decode(FileName);
-			delete d;
+			if (d)
+			{
+				d->decode(FileName);
+				delete d;
+			}
 		};
 
 };
@@ -73,6 +80,11 @@ class Player {
 
 
 int main(int argc, char** argv) {
+	if (argc !=2 )
+	{
+		std::cout << "Wrong number of arguments. Please specify path to media file." <<std::endl;
+		return 1;
+	}
 	Player p;
 	p.play(argv[1]);
 	
